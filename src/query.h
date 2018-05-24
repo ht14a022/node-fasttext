@@ -6,6 +6,7 @@
 #include <node_object_wrap.h>
 #include "wrapper.h"
 #include "nnWorker.h"
+#include "vecWorker.h"
 
 class Query : public Nan::ObjectWrap {
     public:
@@ -79,6 +80,29 @@ class Query : public Nan::ObjectWrap {
         static inline Nan::Persistent<v8::Function> & constructor() {
             static Nan::Persistent<v8::Function> my_constructor;
             return my_constructor;
+        }
+
+        static NAN_METHOD(Vec)
+        {
+            if (!info[0]->IsString())
+            {
+                Nan::ThrowError("query must be a string");
+                return;
+            }
+
+            if (!info[1]->IsFunction())
+            {
+                Nan::ThrowError("callback must be a function");
+                return;
+            }
+
+            v8::String::Utf8Value queryArg(info[0]->ToString());
+            std::string query = std::string(*queryArg);
+            Nan::Callback *callback = new Nan::Callback(info[1].As<v8::Function>());
+
+            Query *obj = Nan::ObjectWrap::Unwrap<Query>(info.Holder());
+
+            Nan::AsyncQueueWorker(new VecWorker(callback, query, obj->wrapper_));
         }
 
         Wrapper* wrapper_;
