@@ -16,6 +16,7 @@ class Query : public Nan::ObjectWrap {
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
             Nan::SetPrototypeMethod(tpl, "nn", Nn);
+            Nan::SetPrototypeMethod(tpl, "vec", Vec);
 
             constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
             Nan::Set(target, Nan::New("Query").ToLocalChecked(),
